@@ -118,9 +118,13 @@ if st.button("🎯 Simulate Player"):
     n_attempts = pass_attempts
     p_per_attempt = avg_tds / n_attempts if n_attempts > 0 else 0
 
-    std_over_prob = round((1 - math.exp(-((avg_yds - standard_yds_line) / 40))) * 100, 2)
-    std_under_prob = round(100 - std_over_prob, 2)
-    alt_over_prob = round((1 - math.exp(-((avg_yds - alt_yds_line) / 40))) * 100, 2)
+    def logistic_prob(x, line, scale=15):
+    return round((1 / (1 + math.exp(-(x - line) / scale))) * 100, 2)
+
+std_over_prob = logistic_prob(avg_yds, standard_yds_line)
+std_under_prob = round(100 - std_over_prob, 2)
+alt_over_prob = logistic_prob(avg_yds, alt_yds_line)
+
 
     prob_0 = binomial_probability(0, int(n_attempts), p_per_attempt)
     prob_1 = binomial_probability(1, int(n_attempts), p_per_attempt)
