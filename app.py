@@ -113,7 +113,7 @@ if st.button("🎯 Simulate Player"):
     st.header("📋 Player Prop Simulation Results")
 
    
-    avg_yds = (qb_yards + def_yds_allowed) / 2
+    avg_yds = (0.65 * qb_yards + 0.35 * def_yds_allowed) * (1.08 if pass_attempts >= 36 else 1.0)
     avg_tds = (qb_td + def_td_allowed) / 2
     n_attempts = pass_attempts
     p_per_attempt = avg_tds / n_attempts if n_attempts > 0 else 0
