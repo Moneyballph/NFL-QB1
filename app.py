@@ -151,9 +151,11 @@ if st.button("🎯 Simulate Player"):
 
 
 
-    st.markdown(f"### 📊 Matchup Risk Tier: **{def_pass_rank}**")
+    st.markdown(f"**📊 Matchup Risk Tier:** {def_pass_rank}")
 
-    st.subheader("🔁 Parlay Builder: Select Props")
+
+    st.markdown("**🔁 Parlay Builder: Select Props**")
+
     selected_ids = st.multiselect("Select 2 or more props to simulate parlay EV:", [prop["id"] for prop in props], format_func=lambda x: next(p["Prop"] for p in props if p["id"] == x))
 
     if len(selected_ids) >= 2:
