@@ -2,42 +2,17 @@
 import streamlit as st
 import math
 import matplotlib.pyplot as plt
-import itertools
-import base64
 
-# ✅ MUST come before any other Streamlit command
 st.set_page_config(page_title="🏈 Moneyball Phil: NFL Prop Simulator", layout="centered")
 
-# === BACKGROUND IMAGE SETUP ===
-def set_background(image_file_path):
-    with open(image_file_path, "rb") as f:
-        data = f.read()
-        encoded = base64.b64encode(data).decode()
-    st.markdown(
-        f"""
-        <style>
-        .stApp {{
-            background-image: url("data:image/png;base64,{encoded}");
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-        }}
-        </style>
-        """,
-        unsafe_allow_html=True
-    )
-
-set_background("ChatGPT Image Jul 14, 2025, 09_58_55 AM.png")
-
-# === TITLE ===
 st.title("🏈 Moneyball Phil: NFL Prop Simulator (v1.2)")
 st.markdown("Simulate **Under 1.5 Passing TDs** and **Alt/Standard Over Passing Yards** props for any QB.")
 
-# === INPUT SECTION ===
 st.header("📋 Input Player & Matchup Data")
+
 col1, col2 = st.columns(2)
 with col1:
-    qb_name = st.text_input("Quarterback Name", value="Kenny Picket")
+    qb_name = st.text_input("Quarterback Name", value="Kenny Pickett")
     opponent_team = st.text_input("Opponent Team", value="Texans")
 
 st.subheader("📊 Passing Yards Props")
@@ -77,7 +52,7 @@ with col13:
 with col14:
     def_td_allowed = st.number_input("Defense Pass TDs/Game", value=1.1)
 
-# Auto-classify defense tier based on Yards Allowed/Game
+# ✅ Auto Defense Tier
 def classify_def_tier(yards_allowed):
     if yards_allowed < 205:
         return "🔴 Tough"
@@ -88,9 +63,7 @@ def classify_def_tier(yards_allowed):
 
 def_pass_rank = classify_def_tier(def_yds_allowed)
 
-
-# === HELPER FUNCTIONS ===
-
+# === Helper Functions ===
 def implied_prob(odds):
     if odds < 0:
         return abs(odds) / (abs(odds) + 100)
@@ -118,7 +91,7 @@ def binomial_probability(k, n, p):
 def logistic_prob(x, line, scale=15):
     return round((1 / (1 + math.exp(-(x - line) / scale))) * 100, 2)
 
-
+# === Simulate Button ===
 if st.button("🎯 Simulate Player"):
     st.header("📋 Player Prop Simulation Results")
 
@@ -127,27 +100,25 @@ if st.button("🎯 Simulate Player"):
     n_attempts = pass_attempts
     p_per_attempt = avg_tds / n_attempts if n_attempts > 0 else 0
 
-    def logistic_prob(x, line, scale=15):
-    return round((1 / (1 + math.exp(-(x - line) / scale))) * 100, 2)
-
+    # ✅ Safe yard probability logic (no negatives)
     std_over_prob = logistic_prob(avg_yds, standard_yds_line)
     std_under_prob = round(100 - std_over_prob, 2)
     alt_over_prob = logistic_prob(avg_yds, alt_yds_line)
 
-
+    # ✅ Binomial passing TD logic
     prob_0 = binomial_probability(0, int(n_attempts), p_per_attempt)
     prob_1 = binomial_probability(1, int(n_attempts), p_per_attempt)
     under_tds_prob = round((prob_0 + prob_1) * 100, 2)
 
-    # ✅ Clear props and results for a fresh simulation
+    # ✅ Clear previous props/results
     props = []
     results = []
 
     props = [
-        {"id": "std_over", "Prop": "Standard Over", "True Prob": std_over_prob, "Odds": odds_over_std},
-        {"id": "std_under", "Prop": "Standard Under", "True Prob": std_under_prob, "Odds": odds_under_std},
-        {"id": "alt_over", "Prop": "Alt Over", "True Prob": alt_over_prob, "Odds": odds_alt_over},
-        {"id": "under_tds", "Prop": "Under 1.5 TDs", "True Prob": under_tds_prob, "Odds": odds_under_tds},
+        {"Prop": "Standard Over", "True Prob": std_over_prob, "Odds": odds_over_std},
+        {"Prop": "Standard Under", "True Prob": std_under_prob, "Odds": odds_under_std},
+        {"Prop": "Alt Over", "True Prob": alt_over_prob, "Odds": odds_alt_over},
+        {"Prop": "Under 1.5 TDs", "True Prob": under_tds_prob, "Odds": odds_under_tds},
     ]
 
     for prop in props:
@@ -164,19 +135,21 @@ if st.button("🎯 Simulate Player"):
         })
 
     st.dataframe(results)
-
-    # Matchup Tier Display
     st.markdown(f"**📊 Matchup Risk Tier:** {def_pass_rank}")
 
-
+    # 🔁 Parlay Builder Section
     st.markdown("**🔁 Parlay Builder: Select Props**")
 
-    selected_ids = st.multiselect("Select 2 or more props to simulate parlay EV:", [prop["id"] for prop in props], format_func=lambda x: next(p["Prop"] for p in props if p["id"] == x))
+    selected_ids = st.multiselect(
+        "Select 2 or more props to simulate parlay EV:",
+        [prop["Prop"] for prop in props]
+    )
 
     if len(selected_ids) >= 2:
-        selected_props = [p for p in props if p["id"] in selected_ids]
+        selected_props = [p for p in props if p["Prop"] in selected_ids]
         parlay_true_prob = 1.0
         parlay_implied_prob = 1.0
+
         for sp in selected_props:
             parlay_true_prob *= sp["True Prob"] / 100
             parlay_implied_prob *= implied_prob(sp["Odds"])
@@ -189,5 +162,9 @@ if st.button("🎯 Simulate Player"):
         st.write(f"**Implied Probability:** {parlay_implied_prob:.2%}")
         st.write(f"**EV %:** {parlay_ev}%")
         st.write(f"**Tier:** {tier}")
+
     elif len(selected_ids) == 1:
         st.info("Please select at least 2 props for the parlay simulation.")
+
+
+   
