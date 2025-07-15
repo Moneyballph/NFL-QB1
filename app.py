@@ -1,8 +1,12 @@
+
 import streamlit as st
 import math
 import matplotlib.pyplot as plt
 import itertools
 import base64
+
+# ✅ MUST come before any other Streamlit command
+st.set_page_config(page_title="🏈 Moneyball Phil: NFL Prop Simulator", layout="centered")
 
 # === BACKGROUND IMAGE SETUP ===
 def set_background(image_file_path):
@@ -25,14 +29,12 @@ def set_background(image_file_path):
 
 set_background("ChatGPT Image Jul 14, 2025, 09_58_55 AM.png")
 
-# === PAGE CONFIG ===
-st.set_page_config(page_title="🏈 Moneyball Phil: NFL Prop Simulator", layout="centered")
-
+# === TITLE ===
 st.title("🏈 Moneyball Phil: NFL Prop Simulator (v1.2)")
 st.markdown("Simulate **Under 1.5 Passing TDs** and **Alt/Standard Over Passing Yards** props for any QB.")
 
+# === INPUT SECTION ===
 st.header("📋 Input Player & Matchup Data")
-
 col1, col2 = st.columns(2)
 with col1:
     qb_name = st.text_input("Quarterback Name", value="Kenny Picket")
@@ -79,12 +81,8 @@ col15 = st.columns(1)[0]
 with col15:
     def_pass_rank = st.selectbox("Defense Matchup Tier (vs Pass)", ["🟢 Easy", "🟡 Average", "🔴 Tough"])
 
-# Helper Functions
 def implied_prob(odds):
-    if odds < 0:
-        return abs(odds) / (abs(odds) + 100)
-    else:
-        return 100 / (odds + 100)
+    return abs(odds) / (abs(odds) + 100) if odds < 0 else 100 / (odds + 100)
 
 def ev_calc(true_prob, odds):
     imp_prob = implied_prob(odds)
@@ -120,10 +118,10 @@ if st.button("🎯 Simulate Player"):
     under_tds_prob = round((prob_0 + prob_1) * 100, 2)
 
     props = [
-        {"id": "std_over", "Prop": f"Standard Over", "True Prob": std_over_prob, "Odds": odds_over_std},
-        {"id": "std_under", "Prop": f"Standard Under", "True Prob": std_under_prob, "Odds": odds_under_std},
-        {"id": "alt_over", "Prop": f"Alt Over", "True Prob": alt_over_prob, "Odds": odds_alt_over},
-        {"id": "under_tds", "Prop": f"Under 1.5 TDs", "True Prob": under_tds_prob, "Odds": odds_under_tds},
+        {"id": "std_over", "Prop": "Standard Over", "True Prob": std_over_prob, "Odds": odds_over_std},
+        {"id": "std_under", "Prop": "Standard Under", "True Prob": std_under_prob, "Odds": odds_under_std},
+        {"id": "alt_over", "Prop": "Alt Over", "True Prob": alt_over_prob, "Odds": odds_alt_over},
+        {"id": "under_tds", "Prop": "Under 1.5 TDs", "True Prob": under_tds_prob, "Odds": odds_under_tds},
     ]
 
     results = []
@@ -147,7 +145,7 @@ if st.button("🎯 Simulate Player"):
     fig, ax = plt.subplots(figsize=(8, 5))
     prop_labels = [prop["Prop"] for prop in props]
     true_probs = [prop["True Prob"] for prop in props]
-    implied_probs = [round(implied_prob(prop["Odds"])*100, 2) for prop in props]
+    implied_probs = [round(implied_prob(prop["Odds"]) * 100, 2) for prop in props]
 
     x = range(len(prop_labels))
     width = 0.35
@@ -159,7 +157,6 @@ if st.button("🎯 Simulate Player"):
     ax.set_title("True vs. Implied Probability by Prop")
     ax.legend()
     ax.grid(axis='y', linestyle='--', alpha=0.7)
-
     st.pyplot(fig)
 
     st.markdown(f"### 📊 Matchup Risk Tier: **{def_pass_rank}**")
