@@ -89,12 +89,17 @@ def classify_def_tier(yards_allowed):
 def_pass_rank = classify_def_tier(def_yds_allowed)
 
 
+# === HELPER FUNCTIONS ===
+
 def implied_prob(odds):
-    return abs(odds) / (abs(odds) + 100) if odds < 0 else 100 / (odds + 100)
+    if odds < 0:
+        return abs(odds) / (abs(odds) + 100)
+    else:
+        return 100 / (odds + 100)
 
 def ev_calc(true_prob, odds):
     imp_prob = implied_prob(odds)
-        return round((true_prob - imp_prob) * 100, 2)
+    return round((true_prob - imp_prob) * 100, 2)
 
 def get_tier(prob):
     if prob >= 80:
@@ -110,6 +115,10 @@ def binomial_probability(k, n, p):
     comb = math.comb(n, k)
     return comb * (p ** k) * ((1 - p) ** (n - k))
 
+def logistic_prob(x, line, scale=15):
+    return round((1 / (1 + math.exp(-(x - line) / scale))) * 100, 2)
+
+
 if st.button("🎯 Simulate Player"):
     st.header("📋 Player Prop Simulation Results")
 
@@ -121,9 +130,9 @@ if st.button("🎯 Simulate Player"):
     def logistic_prob(x, line, scale=15):
     return round((1 / (1 + math.exp(-(x - line) / scale))) * 100, 2)
 
-std_over_prob = logistic_prob(avg_yds, standard_yds_line)
-std_under_prob = round(100 - std_over_prob, 2)
-alt_over_prob = logistic_prob(avg_yds, alt_yds_line)
+    std_over_prob = logistic_prob(avg_yds, standard_yds_line)
+    std_under_prob = round(100 - std_over_prob, 2)
+    alt_over_prob = logistic_prob(avg_yds, alt_yds_line)
 
 
     prob_0 = binomial_probability(0, int(n_attempts), p_per_attempt)
