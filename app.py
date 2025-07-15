@@ -112,7 +112,18 @@ def logistic_prob(x, line, scale=15):
 if st.button("🎯 Simulate Player"):
     st.header("📋 Player Prop Simulation Results")
 
-    avg_yds = (qb_yards + def_yds_allowed) / 2
+    # 🎯 Pro-level average calculation for passing yards
+# Weighted average favoring QB's skill + bump for high volume QBs
+base_avg = (0.65 * qb_yards) + (0.35 * def_yds_allowed)
+
+# Volume adjustment based on pass attempts per game
+if pass_attempts >= 40:
+    avg_yds = base_avg * 1.12  # heavy volume bump
+elif pass_attempts >= 36:
+    avg_yds = base_avg * 1.08  # moderate bump
+else:
+    avg_yds = base_avg
+
     avg_tds = (qb_td + def_td_allowed) / 2
     n_attempts = pass_attempts
     p_per_attempt = avg_tds / n_attempts if n_attempts > 0 else 0
