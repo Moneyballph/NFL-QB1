@@ -35,39 +35,40 @@ with col1:
 st.subheader("📊 Passing Yards Props")
 col3, col4, col5 = st.columns(3)
 with col3:
-    standard_yds_line = st.number_input("Standard Passing Yards Line", value=0)
+    standard_yds_line = st.number_input("Standard Passing Yards Line", value=0.0, step=0.1, format="%.1f")
 with col4:
-    odds_over_std = st.number_input("Odds for Over (Standard Line)", value=0)
+    odds_over_std = st.number_input("Odds for Over (Standard Line)", value=0.0, step=0.1, format="%.1f")
 with col5:
-    odds_under_std = st.number_input("Odds for Under (Standard Line)", value=0)
+    odds_under_std = st.number_input("Odds for Under (Standard Line)", value=0.0, step=0.1, format="%.1f")
 
 col6, col7 = st.columns(2)
 with col6:
-    alt_yds_line = st.number_input("Alt Over Yards Line", value=0)
+    alt_yds_line = st.number_input("Alt Over Yards Line", value=0.0, step=0.1, format="%.1f")
 with col7:
-    odds_alt_over = st.number_input("Odds for Alt Over Line", value=0)
+    odds_alt_over = st.number_input("Odds for Alt Over Line", value=0.0, step=0.1, format="%.1f")
 
 st.subheader("🎯 Touchdown Props")
 col8, col9 = st.columns(2)
 with col8:
-    td_line = st.number_input("Passing TD Line", value=1.5)
+    td_line = st.number_input("Passing TD Line", value=1.5, step=0.1, format="%.1f")
 with col9:
-    odds_under_tds = st.number_input("Odds for Under TDs", value=0)
+    odds_under_tds = st.number_input("Odds for Under TDs", value=0.0, step=0.1, format="%.1f")
 
 st.subheader("📈 QB & Defense Stats")
 col10, col11, col12 = st.columns(3)
 with col10:
-    qb_yards = st.number_input("QB Yards/Game", value=0.0)
+    qb_yards = st.number_input("QB Yards/Game", value=0.0, step=0.1, format="%.1f")
 with col11:
-    qb_td = st.number_input("QB TD/Game", value=0.0)
+    qb_td = st.number_input("QB TD/Game", value=0.0, step=0.1, format="%.1f")
 with col12:
-    pass_attempts = st.number_input("Pass Attempts/Game", value=0.0)
+    pass_attempts = st.number_input("Pass Attempts/Game", value=0.0, step=0.1, format="%.1f")
 
 col13, col14 = st.columns(2)
 with col13:
-    def_yds_allowed = st.number_input("Defense Yards Allowed/Game", value=0.0)
+    def_yds_allowed = st.number_input("Defense Yards Allowed/Game", value=0.0, step=0.1, format="%.1f")
 with col14:
-    def_td_allowed = st.number_input("Defense Pass TDs/Game", value=0.0)
+    def_td_allowed = st.number_input("Defense Pass TDs/Game", value=0.0, step=0.1, format="%.1f")
+
 
 
 # ✅ Auto Defense Tier
