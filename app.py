@@ -2,8 +2,25 @@
 import streamlit as st
 import math
 import matplotlib.pyplot as plt
+import base64
+
+def set_background(image_file_path):
+    with open(image_file_path, "rb") as f:
+        data = f.read()
+        encoded = base64.b64encode(data).decode()
+    st.markdown(f'''
+        <style>
+        .stApp {{
+            background-image: url("data:image/png;base64,{encoded}");
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }}
+        </style>
+    ''', unsafe_allow_html=True)
 
 st.set_page_config(page_title="🏈 Moneyball Phil: NFL Prop Simulator", layout="centered")
+set_background("ChatGPT Image Jul 14, 2025, 09_58_55 AM.png")
 
 st.title("🏈 Moneyball Phil: NFL Prop Simulator (v1.2)")
 st.markdown("Simulate **Under 1.5 Passing TDs** and **Alt/Standard Over Passing Yards** props for any QB.")
