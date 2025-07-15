@@ -149,23 +149,7 @@ if st.button("🎯 Simulate Player"):
 
     st.dataframe(results)
 
-    st.subheader("📈 True vs. Implied Probability Comparison")
-    fig, ax = plt.subplots(figsize=(8, 5))
-    prop_labels = [prop["Prop"] for prop in props]
-    true_probs = [prop["True Prob"] for prop in props]
-    implied_probs = [round(implied_prob(prop["Odds"]) * 100, 2) for prop in props]
 
-    x = range(len(prop_labels))
-    width = 0.35
-    ax.bar([i - width/2 for i in x], true_probs, width=width, label='True %', color='#4CAF50')
-    ax.bar([i + width/2 for i in x], implied_probs, width=width, label='Implied %', color='#FFC107')
-    ax.set_xticks(x)
-    ax.set_xticklabels(prop_labels, rotation=15, ha='right')
-    ax.set_ylabel("Probability (%)")
-    ax.set_title("True vs. Implied Probability by Prop")
-    ax.legend()
-    ax.grid(axis='y', linestyle='--', alpha=0.7)
-    st.pyplot(fig)
 
     st.markdown(f"### 📊 Matchup Risk Tier: **{def_pass_rank}**")
 
