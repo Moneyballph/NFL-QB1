@@ -77,9 +77,17 @@ with col13:
 with col14:
     def_td_allowed = st.number_input("Defense Pass TDs/Game", value=1.1)
 
-col15 = st.columns(1)[0]
-with col15:
-    def_pass_rank = st.selectbox("Defense Matchup Tier (vs Pass)", ["🟢 Easy", "🟡 Average", "🔴 Tough"])
+# Auto-classify defense tier based on Yards Allowed/Game
+def classify_def_tier(yards_allowed):
+    if yards_allowed < 205:
+        return "🔴 Tough"
+    elif yards_allowed <= 240:
+        return "🟡 Average"
+    else:
+        return "🟢 Easy"
+
+def_pass_rank = classify_def_tier(def_yds_allowed)
+
 
 def implied_prob(odds):
     return abs(odds) / (abs(odds) + 100) if odds < 0 else 100 / (odds + 100)
