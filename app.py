@@ -94,7 +94,7 @@ def implied_prob(odds):
 
 def ev_calc(true_prob, odds):
     imp_prob = implied_prob(odds)
-    return round((true_prob - imp_prob) * 100, 2)
+        return round((true_prob - imp_prob) * 100, 2)
 
 def get_tier(prob):
     if prob >= 80:
