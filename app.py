@@ -112,6 +112,7 @@ def binomial_probability(k, n, p):
 
 if st.button("🎯 Simulate Player"):
     st.header("📋 Player Prop Simulation Results")
+
     avg_yds = (qb_yards + def_yds_allowed) / 2
     avg_tds = (qb_td + def_td_allowed) / 2
     n_attempts = pass_attempts
@@ -125,26 +126,23 @@ if st.button("🎯 Simulate Player"):
     prob_1 = binomial_probability(1, int(n_attempts), p_per_attempt)
     under_tds_prob = round((prob_0 + prob_1) * 100, 2)
 
-    # ⛔ Clear old props first!
-props = []
-
-# ✅ Fresh list of props for current player
-props = [
-    {"id": "std_over", "Prop": "Standard Over", "True Prob": std_over_prob, "Odds": odds_over_std},
-    {"id": "std_under", "Prop": "Standard Under", "True Prob": std_under_prob, "Odds": odds_under_std},
-    {"id": "alt_over", "Prop": "Alt Over", "True Prob": alt_over_prob, "Odds": odds_alt_over},
-    {"id": "under_tds", "Prop": "Under 1.5 TDs", "True Prob": under_tds_prob, "Odds": odds_under_tds},
-]
-
-
+    # ✅ Clear props and results for a fresh simulation
+    props = []
     results = []
+
+    props = [
+        {"id": "std_over", "Prop": "Standard Over", "True Prob": std_over_prob, "Odds": odds_over_std},
+        {"id": "std_under", "Prop": "Standard Under", "True Prob": std_under_prob, "Odds": odds_under_std},
+        {"id": "alt_over", "Prop": "Alt Over", "True Prob": alt_over_prob, "Odds": odds_alt_over},
+        {"id": "under_tds", "Prop": "Under 1.5 TDs", "True Prob": under_tds_prob, "Odds": odds_under_tds},
+    ]
+
     for prop in props:
         true_p = prop["True Prob"]
         implied_p = round(implied_prob(prop["Odds"]) * 100, 2)
         ev = ev_calc(true_p / 100, prop["Odds"])
         tier = get_tier(true_p)
         results.append({
-            "id": prop["id"],
             "Prop": prop["Prop"],
             "True Probability": f"{true_p}%",
             "Implied Probability": f"{implied_p}%",
@@ -154,8 +152,7 @@ props = [
 
     st.dataframe(results)
 
-
-
+    # Matchup Tier Display
     st.markdown(f"**📊 Matchup Risk Tier:** {def_pass_rank}")
 
 
