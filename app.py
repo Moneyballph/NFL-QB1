@@ -3,7 +3,7 @@ import streamlit as st
 import math
 import base64
 
-# === Background Setup ===
+# ✅ Background Setup
 def set_background(image_file_path):
     with open(image_file_path, "rb") as f:
         data = f.read()
@@ -19,10 +19,19 @@ def set_background(image_file_path):
         </style>
     ''', unsafe_allow_html=True)
 
+# ✅ Page Config
 st.set_page_config(page_title="🏈 Moneyball Phil: NFL Prop Simulator", layout="centered")
 set_background("ChatGPT Image Jul 14, 2025, 09_58_55 AM.png")
 
-# === General Helpers ===
+# ✅ App Title and Navigation
+st.title("🏈 Moneyball Phil: NFL Prop Simulator (v2.0)")
+position = st.selectbox("Select Position", ["Quarterback", "Wide Receiver", "Running Back"])
+
+# ✅ Storage for props across simulations
+if "all_props" not in st.session_state:
+    st.session_state.all_props = []
+
+# ✅ Helper Functions
 def implied_prob(odds):
     if odds < 0:
         return abs(odds) / (abs(odds) + 100)
@@ -58,183 +67,204 @@ def classify_def_tier(yards_allowed):
     else:
         return "🟢 Easy"
 
-# === Start UI ===
-st.title("🏈 Moneyball Phil: NFL Prop Simulator (v2.0)")
-position = st.selectbox("Select Position", ["Quarterback", "Wide Receiver", "Running Back"])
-
-props = []
-
-# === QB SECTION ===
+# ✅ Quarterback Section
 if position == "Quarterback":
-    st.markdown("### 📋 QB Input & Matchup Data")
-    col1, col2 = st.columns(2)
+    st.markdown("### 🎯 Quarterback Inputs")
+    qb_name = st.text_input("Quarterback Name", value="")
+    opponent_team = st.text_input("Opponent Team", value="")
+
+    st.subheader("📊 Passing Yards Props")
+    col1, col2, col3 = st.columns(3)
     with col1:
-        qb_name = st.text_input("Quarterback Name", value="")
-        opponent_team = st.text_input("Opponent Team", value="")
-    st.markdown("### 📊 Passing Yards Props")
-    col3, col4, col5 = st.columns(3)
+        standard_yds_line = st.number_input("Standard Passing Yards Line", value=0.0, step=0.1, format="%.1f")
+    with col2:
+        odds_over_std = st.number_input("Odds Over (Standard)", value=0.0, step=0.1, format="%.1f")
     with col3:
-        standard_yds_line = st.number_input("Standard Passing Yards Line", value=0.0, step=0.1)
-        odds_over_std = st.number_input("Odds for Over (Standard Line)", value=0.0, step=0.1)
+        odds_under_std = st.number_input("Odds Under (Standard)", value=0.0, step=0.1, format="%.1f")
+
+    col4, col5 = st.columns(2)
     with col4:
-        odds_under_std = st.number_input("Odds for Under (Standard Line)", value=0.0, step=0.1)
-        alt_yds_line = st.number_input("Alt Over Yards Line", value=0.0, step=0.1)
+        alt_yds_line = st.number_input("Alt Over Line", value=0.0, step=0.1, format="%.1f")
     with col5:
-        odds_alt_over = st.number_input("Odds for Alt Over Line", value=0.0, step=0.1)
-        td_line = st.number_input("Passing TD Line", value=1.5, step=0.1)
-    odds_under_tds = st.number_input("Odds for Under TDs", value=0.0, step=0.1)
+        odds_alt_over = st.number_input("Odds for Alt Over", value=0.0, step=0.1, format="%.1f")
 
-    st.markdown("### 📈 QB & Defense Stats")
-    col6, col7, col8 = st.columns(3)
+    st.subheader("🎯 Touchdown Props")
+    col6, col7 = st.columns(2)
     with col6:
-        qb_yards = st.number_input("QB Yards/Game", value=0.0, step=0.1)
+        td_line = st.number_input("Passing TD Line", value=1.5, step=0.1, format="%.1f")
     with col7:
-        qb_td = st.number_input("QB TD/Game", value=0.0, step=0.1)
+        odds_under_tds = st.number_input("Odds for Under TDs", value=0.0, step=0.1, format="%.1f")
+
+    st.subheader("📈 QB & Defense Stats")
+    col8, col9, col10 = st.columns(3)
     with col8:
-        pass_attempts = st.number_input("Pass Attempts/Game", value=0.0, step=0.1)
-
-    col9, col10 = st.columns(2)
+        qb_yards = st.number_input("QB Yards/Game", value=0.0, step=0.1, format="%.1f")
     with col9:
-        def_yds_allowed = st.number_input("Defense Yards Allowed/Game", value=0.0, step=0.1)
+        qb_td = st.number_input("QB TD/Game", value=0.0, step=0.1, format="%.1f")
     with col10:
-        def_td_allowed = st.number_input("Defense Pass TDs/Game", value=0.0, step=0.1)
+        pass_attempts = st.number_input("Pass Attempts/Game", value=0.0, step=0.1, format="%.1f")
 
-    def_pass_rank = classify_def_tier(def_yds_allowed)
+    col11, col12 = st.columns(2)
+    with col11:
+        def_yds_allowed = st.number_input("Defense Yards Allowed/Game", value=0.0, step=0.1, format="%.1f")
+    with col12:
+        def_td_allowed = st.number_input("Defense Pass TDs/Game", value=0.0, step=0.1, format="%.1f")
 
-    if st.button("🎯 Simulate Player"):
+    if st.button("🎯 Simulate QB"):
+        st.subheader("📋 QB Prop Simulation Results")
         avg_yds = (0.65 * qb_yards + 0.35 * def_yds_allowed) * (1.08 if pass_attempts >= 36 else 1.0)
         avg_tds = (qb_td + def_td_allowed) / 2
-        n_attempts = pass_attempts
-        p_per_attempt = avg_tds / n_attempts if n_attempts > 0 else 0
+        p_per_attempt = avg_tds / pass_attempts if pass_attempts > 0 else 0
 
-        std_over_prob = logistic_prob(avg_yds, standard_yds_line)
-        std_under_prob = round(100 - std_over_prob, 2)
-        alt_over_prob = logistic_prob(avg_yds, alt_yds_line)
+        std_over = logistic_prob(avg_yds, standard_yds_line)
+        std_under = round(100 - std_over, 2)
+        alt_over = logistic_prob(avg_yds, alt_yds_line)
 
-        prob_0 = binomial_probability(0, int(n_attempts), p_per_attempt)
-        prob_1 = binomial_probability(1, int(n_attempts), p_per_attempt)
-        under_tds_prob = round((prob_0 + prob_1) * 100, 2)
+        prob_0 = binomial_probability(0, int(pass_attempts), p_per_attempt)
+        prob_1 = binomial_probability(1, int(pass_attempts), p_per_attempt)
+        td_under = round((prob_0 + prob_1) * 100, 2)
 
-        props = [
-            {"Prop": "Standard Over", "True Prob": std_over_prob, "Odds": odds_over_std},
-            {"Prop": "Standard Under", "True Prob": std_under_prob, "Odds": odds_under_std},
-            {"Prop": "Alt Over", "True Prob": alt_over_prob, "Odds": odds_alt_over},
-            {"Prop": "Under 1.5 TDs", "True Prob": under_tds_prob, "Odds": odds_under_tds},
+        qb_props = [
+            {"Player": qb_name, "Prop": "Standard Over", "True Prob": std_over, "Odds": odds_over_std},
+            {"Player": qb_name, "Prop": "Standard Under", "True Prob": std_under, "Odds": odds_under_std},
+            {"Player": qb_name, "Prop": "Alt Over", "True Prob": alt_over, "Odds": odds_alt_over},
+            {"Player": qb_name, "Prop": "Under 1.5 TDs", "True Prob": td_under, "Odds": odds_under_tds},
         ]
 
-# === WR SECTION ===
-elif position == "Wide Receiver":
-    st.markdown("### 📋 WR Input & Matchup Data")
-    player = st.text_input("Receiver Name", value="")
-    opponent_team = st.text_input("Opponent Team", value="")
-    col1, col2 = st.columns(2)
+        st.session_state.all_props.extend(qb_props)
+        st.success("✅ QB props added to board.")
+
+# ✅ Wide Receiver Section
+if position == "Wide Receiver":
+    st.markdown("### 🎯 Wide Receiver Inputs")
+    wr_name = st.text_input("WR Name", value="")
+    wr_yds_avg = st.number_input("Receiving Yards/Game", value=0.0, step=0.1, format="%.1f")
+    wr_rec_avg = st.number_input("Receptions/Game", value=0.0, step=0.1, format="%.1f")
+    def_rank_yds = st.number_input("Defense Rank vs WR Yards (1-32)", value=16)
+    def_rank_rec = st.number_input("Defense Rank vs WR Receptions (1-32)", value=16)
+
+    col1, col2, col3 = st.columns(3)
     with col1:
-        standard_rec_line = st.number_input("Receiving Yards Line", value=0.0, step=0.1)
-        odds_over_rec = st.number_input("Odds Over (Receiving Yards)", value=0.0, step=0.1)
+        std_yds_line = st.number_input("Standard Rec. Yards Line", value=0.0, step=0.1, format="%.1f")
     with col2:
-        odds_under_rec = st.number_input("Odds Under (Receiving Yards)", value=0.0, step=0.1)
-        alt_rec_line = st.number_input("Alt Receiving Yards", value=0.0, step=0.1)
-        odds_alt_rec = st.number_input("Odds for Alt Receiving Line", value=0.0, step=0.1)
-    st.markdown("### 📈 WR & Defense Stats")
-    rec_avg = st.number_input("Player Receiving Yards/Game", value=0.0, step=0.1)
-    def_rec_yds_allowed = st.number_input("Defense Receiving Yards Allowed/Game", value=0.0, step=0.1)
-    def_pass_rank = classify_def_tier(def_rec_yds_allowed)
-
-    if st.button("🎯 Simulate Player"):
-        avg_yds = (0.65 * rec_avg + 0.35 * def_rec_yds_allowed)
-        std_over_prob = logistic_prob(avg_yds, standard_rec_line)
-        std_under_prob = round(100 - std_over_prob, 2)
-        alt_over_prob = logistic_prob(avg_yds, alt_rec_line)
-
-        props = [
-            {"Prop": "Receiving Over", "True Prob": std_over_prob, "Odds": odds_over_rec},
-            {"Prop": "Receiving Under", "True Prob": std_under_prob, "Odds": odds_under_rec},
-            {"Prop": "Alt Receiving Over", "True Prob": alt_over_prob, "Odds": odds_alt_rec},
-        ]
-
-# === RB SECTION ===
-elif position == "Running Back":
-    st.markdown("### 📋 RB Input & Matchup Data")
-    player = st.text_input("Running Back Name", value="")
-    opponent_team = st.text_input("Opponent Team", value="")
-    st.markdown("#### 🏃 Rushing Yards")
-    col1, col2 = st.columns(2)
-    with col1:
-        rush_line = st.number_input("Rushing Yards Line", value=0.0, step=0.1)
-        odds_rush_over = st.number_input("Odds Over (Rushing Yards)", value=0.0, step=0.1)
-        odds_rush_under = st.number_input("Odds Under (Rushing Yards)", value=0.0, step=0.1)
-    with col2:
-        alt_rush_line = st.number_input("Alt Rushing Yards", value=0.0, step=0.1)
-        odds_alt_rush = st.number_input("Odds for Alt Rushing Line", value=0.0, step=0.1)
-    st.markdown("#### 🤝 Receptions")
-    col3, col4 = st.columns(2)
+        odds_std_over = st.number_input("Odds Over (Yards)", value=0.0, step=0.1, format="%.1f")
     with col3:
-        recs_line = st.number_input("Receptions Line", value=0.0, step=0.1)
+        odds_std_under = st.number_input("Odds Under (Yards)", value=0.0, step=0.1, format="%.1f")
+
+    col4, col5 = st.columns(2)
     with col4:
-        odds_over_recs = st.number_input("Odds Over (Receptions)", value=0.0, step=0.1)
-        odds_under_recs = st.number_input("Odds Under (Receptions)", value=0.0, step=0.1)
+        alt_yds_line = st.number_input("Alt Rec. Yards Line", value=0.0, step=0.1, format="%.1f")
+    with col5:
+        odds_alt_over = st.number_input("Odds for Alt Over Yards", value=0.0, step=0.1, format="%.1f")
 
-    st.markdown("### 📈 RB & Defense Stats")
-    rush_avg = st.number_input("Rushing Yards/Game", value=0.0, step=0.1)
-    recs_avg = st.number_input("Receptions/Game", value=0.0, step=0.1)
-    def_rush_yds_allowed = st.number_input("Defense Rush Yards Allowed/Game", value=0.0, step=0.1)
-    def_rec_allowed = st.number_input("Defense Receptions Allowed/Game", value=0.0, step=0.1)
-    def_pass_rank = classify_def_tier(def_rush_yds_allowed)
+    col6, col7 = st.columns(2)
+    with col6:
+        rec_line = st.number_input("Receptions Line", value=0.0, step=0.1, format="%.1f")
+    with col7:
+        odds_rec_over = st.number_input("Odds for Over Receptions", value=0.0, step=0.1, format="%.1f")
 
-    if st.button("🎯 Simulate Player"):
-        avg_rush = (0.65 * rush_avg + 0.35 * def_rush_yds_allowed)
-        avg_recs = (0.65 * recs_avg + 0.35 * def_rec_allowed)
+    if st.button("🎯 Simulate WR"):
+        adj_yds = wr_yds_avg * (1.1 if def_rank_yds >= 24 else 1.0 if def_rank_yds >= 12 else 0.9)
+        adj_rec = wr_rec_avg * (1.1 if def_rank_rec >= 24 else 1.0 if def_rank_rec >= 12 else 0.9)
 
-        rush_over_prob = logistic_prob(avg_rush, rush_line)
-        rush_under_prob = round(100 - rush_over_prob, 2)
-        alt_rush_prob = logistic_prob(avg_rush, alt_rush_line)
-        recs_over_prob = logistic_prob(avg_recs, recs_line)
-        recs_under_prob = round(100 - recs_over_prob, 2)
+        std_yds_prob = logistic_prob(adj_yds, std_yds_line)
+        std_yds_under = round(100 - std_yds_prob, 2)
+        alt_yds_prob = logistic_prob(adj_yds, alt_yds_line)
+        rec_prob = logistic_prob(adj_rec, rec_line)
 
-        props = [
-            {"Prop": "Rush Over", "True Prob": rush_over_prob, "Odds": odds_rush_over},
-            {"Prop": "Rush Under", "True Prob": rush_under_prob, "Odds": odds_rush_under},
-            {"Prop": "Alt Rush Over", "True Prob": alt_rush_prob, "Odds": odds_alt_rush},
-            {"Prop": "Receptions Over", "True Prob": recs_over_prob, "Odds": odds_over_recs},
-            {"Prop": "Receptions Under", "True Prob": recs_under_prob, "Odds": odds_under_recs},
+        wr_props = [
+            {"Player": wr_name, "Prop": "Standard Over Yards", "True Prob": std_yds_prob, "Odds": odds_std_over},
+            {"Player": wr_name, "Prop": "Standard Under Yards", "True Prob": std_yds_under, "Odds": odds_std_under},
+            {"Player": wr_name, "Prop": "Alt Over Yards", "True Prob": alt_yds_prob, "Odds": odds_alt_over},
+            {"Player": wr_name, "Prop": "Over Receptions", "True Prob": rec_prob, "Odds": odds_rec_over},
         ]
 
-# === RESULTS TABLE + PARLAY BUILDER ===
-if props:
-    st.markdown(f"**📊 Matchup Risk Tier:** {def_pass_rank}")
-    results = []
-    for prop in props:
-        true_p = prop["True Prob"]
-        implied_p = round(implied_prob(prop["Odds"]) * 100, 2)
-        ev = ev_calc(true_p / 100, prop["Odds"])
-        tier = get_tier(true_p)
-        results.append({
-            "Prop": prop["Prop"],
-            "True Probability": f"{true_p}%",
-            "Implied Probability": f"{implied_p}%",
-            "EV %": f"{ev}%",
-            "Tier": tier
-        })
-    st.dataframe(results)
+        st.session_state.all_props.extend(wr_props)
+        st.success("✅ WR props added to board.")
 
-    st.markdown("### 🔁 Parlay Builder: Select Props")
-    selected_ids = st.multiselect("Select 2+ props to simulate parlay EV:", [p["Prop"] for p in props])
-    if len(selected_ids) >= 2:
-        selected_props = [p for p in props if p["Prop"] in selected_ids]
-        parlay_true_prob = 1.0
-        parlay_implied_prob = 1.0
-        for sp in selected_props:
-            parlay_true_prob *= sp["True Prob"] / 100
-            parlay_implied_prob *= implied_prob(sp["Odds"])
-        parlay_ev = round((parlay_true_prob - parlay_implied_prob) * 100, 2)
-        tier = get_tier(parlay_true_prob * 100)
-        st.markdown("### 🎯 Parlay Simulation Result")
-        st.write(f"**True Hit Probability:** {parlay_true_prob:.2%}")
-        st.write(f"**Implied Probability:** {parlay_implied_prob:.2%}")
+# ✅ Running Back Section
+if position == "Running Back":
+    st.markdown("### 🎯 Running Back Inputs")
+    rb_name = st.text_input("RB Name", value="")
+    rush_avg = st.number_input("Rushing Yards/Game", value=0.0, step=0.1, format="%.1f")
+    rec_avg = st.number_input("Receptions/Game", value=0.0, step=0.1, format="%.1f")
+    def_rank_rush = st.number_input("Defense Rank vs Rush Yards (1-32)", value=16)
+    def_rank_rec = st.number_input("Defense Rank vs RB Receptions (1-32)", value=16)
+
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        std_rush_line = st.number_input("Standard Rush Yards Line", value=0.0, step=0.1, format="%.1f")
+    with col2:
+        odds_rush_over = st.number_input("Odds Over (Rush)", value=0.0, step=0.1, format="%.1f")
+    with col3:
+        odds_rush_under = st.number_input("Odds Under (Rush)", value=0.0, step=0.1, format="%.1f")
+
+    col4, col5 = st.columns(2)
+    with col4:
+        alt_rush_line = st.number_input("Alt Over Rush Yards", value=0.0, step=0.1, format="%.1f")
+    with col5:
+        odds_alt_rush = st.number_input("Odds Alt Over Rush", value=0.0, step=0.1, format="%.1f")
+
+    col6, col7 = st.columns(2)
+    with col6:
+        rec_line = st.number_input("Receptions Line", value=0.0, step=0.1, format="%.1f")
+    with col7:
+        odds_rec_over = st.number_input("Odds Over Receptions", value=0.0, step=0.1, format="%.1f")
+
+    if st.button("🎯 Simulate RB"):
+        adj_rush = rush_avg * (1.1 if def_rank_rush >= 24 else 1.0 if def_rank_rush >= 12 else 0.9)
+        adj_rec = rec_avg * (1.1 if def_rank_rec >= 24 else 1.0 if def_rank_rec >= 12 else 0.9)
+
+        std_rush_prob = logistic_prob(adj_rush, std_rush_line)
+        std_rush_under = round(100 - std_rush_prob, 2)
+        alt_rush_prob = logistic_prob(adj_rush, alt_rush_line)
+        rec_prob = logistic_prob(adj_rec, rec_line)
+
+        rb_props = [
+            {"Player": rb_name, "Prop": "Standard Over Rush", "True Prob": std_rush_prob, "Odds": odds_rush_over},
+            {"Player": rb_name, "Prop": "Standard Under Rush", "True Prob": std_rush_under, "Odds": odds_rush_under},
+            {"Player": rb_name, "Prop": "Alt Over Rush", "True Prob": alt_rush_prob, "Odds": odds_alt_rush},
+            {"Player": rb_name, "Prop": "Over Receptions", "True Prob": rec_prob, "Odds": odds_rec_over},
+        ]
+
+        st.session_state.all_props.extend(rb_props)
+        st.success("✅ RB props added to board.")
+
+# ✅ Top Hit Board
+if st.session_state.all_props:
+    st.markdown("### 🧠 Top Hit Board (Ranked by True Probability)")
+    sorted_props = sorted(st.session_state.all_props, key=lambda x: x["True Prob"], reverse=True)
+    board_data = [
+        {
+            "Player": p["Player"],
+            "Prop": p["Prop"],
+            "True Probability": f"{p['True Prob']}%",
+            "Tier": get_tier(p["True Prob"])
+        }
+        for p in sorted_props
+    ]
+    st.dataframe(board_data)
+
+# ✅ Parlay Builder
+if st.session_state.all_props:
+    st.markdown("### 💥 Parlay Builder: Select Props")
+    selected = st.multiselect(
+        "Select 2 or more props for parlay",
+        [f"{p['Player']} - {p['Prop']}" for p in st.session_state.all_props]
+    )
+
+    if len(selected) >= 2:
+        chosen = [p for p in st.session_state.all_props if f"{p['Player']} - {p['Prop']}" in selected]
+        true_prob = math.prod([p["True Prob"] / 100 for p in chosen])
+        implied_prob_total = math.prod([implied_prob(p["Odds"]) for p in chosen])
+        parlay_ev = round((true_prob - implied_prob_total) * 100, 2)
+        tier = get_tier(true_prob * 100)
+
+        st.write(f"**True Probability:** {true_prob:.2%}")
+        st.write(f"**Implied Probability:** {implied_prob_total:.2%}")
         st.write(f"**EV %:** {parlay_ev}%")
         st.write(f"**Tier:** {tier}")
-    elif len(selected_ids) == 1:
-        st.info("Please select at least 2 props for the parlay simulation.")
+
 
 
 
