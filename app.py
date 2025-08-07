@@ -66,26 +66,26 @@ def classify_def_tier(val):
 # ✅ Quarterback Module
 if position == "Quarterback":
     st.header("🎯 Quarterback Inputs")
-    name = st.text_input("Quarterback Name")
-    opp = st.text_input("Opponent Team")
+    name = st.text_input("Quarterback Name", value="")
+    opp = st.text_input("Opponent Team", value="")
 
     st.subheader("📊 Passing Yards Props")
-    std_line = st.number_input("Standard Passing Yards Line", value=225.0)
-    over_std = st.number_input("Odds Over (Standard)", value=-110)
-    under_std = st.number_input("Odds Under (Standard)", value=-110)
-    alt_line = st.number_input("Alt Over Line", value=275.0)
-    alt_odds = st.number_input("Odds for Alt Over", value=135)
+    std_line = st.number_input("Standard Passing Yards Line", value=0.0)
+    over_std = st.number_input("Odds Over (Standard)", value=0.0)
+    under_std = st.number_input("Odds Under (Standard)", value=0.0)
+    alt_line = st.number_input("Alt Over Line", value=0.0)
+    alt_odds = st.number_input("Odds for Alt Over", value=0.0)
 
     st.subheader("🎯 Touchdown Props")
     td_line = st.number_input("Passing TD Line", value=1.5)
-    td_under_odds = st.number_input("Odds for Under TDs", value=-110)
+    td_under_odds = st.number_input("Odds for Under TDs", value=0.0)
 
     st.subheader("📈 QB & Defense Stats")
-    ypg = st.number_input("QB Yards/Game", value=245.0)
-    tds = st.number_input("QB TD/Game", value=1.6)
-    attempts = st.number_input("Pass Attempts/Game", value=34.0)
-    def_yds = st.number_input("Defense Yards Allowed/Game", value=230.0)
-    def_tds = st.number_input("Defense Pass TDs/Game", value=1.4)
+    ypg = st.number_input("QB Yards/Game", value=0.0)
+    tds = st.number_input("QB TD/Game", value=0.0)
+    attempts = st.number_input("Pass Attempts/Game", value=0.0)
+    def_yds = st.number_input("Defense Yards Allowed/Game", value=0.0)
+    def_tds = st.number_input("Defense Pass TDs/Game", value=0.0)
 
     if st.button("Simulate QB Props"):
         std_prob = logistic_prob(ypg, std_line)
@@ -106,24 +106,24 @@ if position == "Quarterback":
 # ✅ Wide Receiver Module
 if position == "Wide Receiver":
     st.header("🎯 Wide Receiver Inputs")
-    name = st.text_input("Wide Receiver Name")
-    opp = st.text_input("Opponent Team")
+    name = st.text_input("Wide Receiver Name", value="")
+    opp = st.text_input("Opponent Team", value="")
 
     st.subheader("📊 Receiving Yards Props")
-    std_line = st.number_input("Standard Receiving Yards Line", value=55.0)
-    over_std = st.number_input("Odds Over (Standard)", value=-115)
-    alt_line = st.number_input("Alt Over Line", value=75.0)
-    alt_odds = st.number_input("Odds for Alt Over", value=160)
+    std_line = st.number_input("Standard Receiving Yards Line", value=0.0)
+    over_std = st.number_input("Odds Over (Standard)", value=0.0)
+    alt_line = st.number_input("Alt Over Line", value=0.0)
+    alt_odds = st.number_input("Odds for Alt Over", value=0.0)
 
     st.subheader("🎯 Receptions Prop")
-    rec_line = st.number_input("Receptions Line", value=4.5)
-    rec_over_odds = st.number_input("Odds for Over Receptions", value=-120)
+    rec_line = st.number_input("Receptions Line", value=0.0)
+    rec_over_odds = st.number_input("Odds for Over Receptions", value=0.0)
 
     st.subheader("📈 WR & Defense Stats")
-    ypg = st.number_input("WR Yards/Game", value=64.0)
-    rpg = st.number_input("WR Receptions/Game", value=5.2)
-    def_yds = st.number_input("Defense WR Yards Allowed/Game", value=240.0)
-    def_rec = st.number_input("Defense WR Receptions Allowed/Game", value=12.0)
+    ypg = st.number_input("WR Yards/Game", value=0.0)
+    rpg = st.number_input("WR Receptions/Game", value=0.0)
+    def_yds = st.number_input("Defense WR Yards Allowed/Game", value=0.0)
+    def_rec = st.number_input("Defense WR Receptions Allowed/Game", value=0.0)
 
     if st.button("Simulate WR Props"):
         std_prob = logistic_prob(ypg, std_line)
@@ -144,24 +144,24 @@ if position == "Wide Receiver":
 # ✅ Running Back Module
 if position == "Running Back":
     st.header("🎯 Running Back Inputs")
-    name = st.text_input("Running Back Name")
-    opp = st.text_input("Opponent Team")
+    name = st.text_input("Running Back Name", value="")
+    opp = st.text_input("Opponent Team", value="")
 
     st.subheader("📊 Rushing Yards Props")
-    std_line = st.number_input("Standard Rushing Yards Line", value=60.0)
-    over_std = st.number_input("Odds Over (Standard)", value=-110)
-    alt_line = st.number_input("Alt Over Line", value=85.0)
-    alt_odds = st.number_input("Odds for Alt Over", value=140)
+    std_line = st.number_input("Standard Rushing Yards Line", value=0.0)
+    over_std = st.number_input("Odds Over (Standard)", value=0.0)
+    alt_line = st.number_input("Alt Over Line", value=0.0)
+    alt_odds = st.number_input("Odds for Alt Over", value=0.0)
 
     st.subheader("🎯 Receptions Prop")
-    rec_line = st.number_input("Receptions Line", value=2.5)
-    rec_over_odds = st.number_input("Odds for Over Receptions", value=-110)
+    rec_line = st.number_input("Receptions Line", value=0.0)
+    rec_over_odds = st.number_input("Odds for Over Receptions", value=0.0)
 
     st.subheader("📈 RB & Defense Stats")
-    ypg = st.number_input("RB Yards/Game", value=72.0)
-    rpg = st.number_input("RB Receptions/Game", value=2.8)
-    def_yds = st.number_input("Defense Rush Yards Allowed/Game", value=110.0)
-    def_rec = st.number_input("Defense RB Receptions Allowed/Game", value=4.5)
+    ypg = st.number_input("RB Yards/Game", value=0.0)
+    rpg = st.number_input("RB Receptions/Game", value=0.0)
+    def_yds = st.number_input("Defense Rush Yards Allowed/Game", value=0.0)
+    def_rec = st.number_input("Defense RB Receptions Allowed/Game", value=0.0)
 
     if st.button("Simulate RB Props"):
         std_prob = logistic_prob(ypg, std_line)
@@ -214,7 +214,6 @@ if len(st.session_state.all_props) >= 2:
         st.success(f"Parlay Hit Probability: `{combined_prob}%` | Avg EV: `{avg_ev}%`")
 else:
     st.info("Add at least 2 simulated props to enable the parlay builder.")
-
 
 
 
