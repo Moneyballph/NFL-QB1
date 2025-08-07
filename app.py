@@ -112,12 +112,14 @@ if position == "Wide Receiver":
     st.subheader("📊 Receiving Yards Props")
     std_line = st.number_input("Standard Receiving Yards Line", value=0.0)
     over_std = st.number_input("Odds Over (Standard)", value=0.0)
+    under_std = st.number_input("Odds Under (Standard)", value=0.0)
     alt_line = st.number_input("Alt Over Line", value=0.0)
     alt_odds = st.number_input("Odds for Alt Over", value=0.0)
 
     st.subheader("🎯 Receptions Prop")
     rec_line = st.number_input("Receptions Line", value=0.0)
     rec_over_odds = st.number_input("Odds for Over Receptions", value=0.0)
+    rec_under_odds = st.number_input("Odds for Under Receptions", value=0.0)
 
     st.subheader("📈 WR & Defense Stats")
     ypg = st.number_input("WR Yards/Game", value=0.0)
@@ -133,12 +135,15 @@ if position == "Wide Receiver":
 
         st.success(f"📈 Standard Yards Hit %: {std_prob}%  | Alt Line %: {alt_prob}%")
         st.success(f"🎯 Receptions Over {rec_line} Hit %: {rec_prob}%")
+        st.success(f"📉 Receptions Under {rec_line} Hit %: {100 - rec_prob}%")
         st.info(f"Opponent Defense Tier: {tier} | Avg Receptions Allowed: {def_rec}")
 
         st.session_state.all_props.extend([
             {"Player": name, "Prop": f"Over {std_line} Rec Yds", "True Prob": std_prob, "Odds": over_std},
+            {"Player": name, "Prop": f"Under {std_line} Rec Yds", "True Prob": 100 - std_prob, "Odds": under_std},
             {"Player": name, "Prop": f"Over {alt_line} Alt Rec Yds", "True Prob": alt_prob, "Odds": alt_odds},
             {"Player": name, "Prop": f"Over {rec_line} Receptions", "True Prob": rec_prob, "Odds": rec_over_odds},
+            {"Player": name, "Prop": f"Under {rec_line} Receptions", "True Prob": 100 - rec_prob, "Odds": rec_under_odds},
         ])
 
 # ✅ Running Back Module
@@ -150,12 +155,14 @@ if position == "Running Back":
     st.subheader("📊 Rushing Yards Props")
     std_line = st.number_input("Standard Rushing Yards Line", value=0.0)
     over_std = st.number_input("Odds Over (Standard)", value=0.0)
+    under_std = st.number_input("Odds Under (Standard)", value=0.0)
     alt_line = st.number_input("Alt Over Line", value=0.0)
     alt_odds = st.number_input("Odds for Alt Over", value=0.0)
 
     st.subheader("🎯 Receptions Prop")
     rec_line = st.number_input("Receptions Line", value=0.0)
     rec_over_odds = st.number_input("Odds for Over Receptions", value=0.0)
+    rec_under_odds = st.number_input("Odds for Under Receptions", value=0.0)
 
     st.subheader("📈 RB & Defense Stats")
     ypg = st.number_input("RB Yards/Game", value=0.0)
@@ -171,12 +178,15 @@ if position == "Running Back":
 
         st.success(f"📈 Standard Rush Yards Hit %: {std_prob}%  | Alt Line %: {alt_prob}%")
         st.success(f"🎯 Receptions Over {rec_line} Hit %: {rec_prob}%")
+        st.success(f"📉 Receptions Under {rec_line} Hit %: {100 - rec_prob}%")
         st.info(f"Opponent Defense Tier: {tier} | Avg Receptions Allowed: {def_rec}")
 
         st.session_state.all_props.extend([
             {"Player": name, "Prop": f"Over {std_line} Rush Yds", "True Prob": std_prob, "Odds": over_std},
+            {"Player": name, "Prop": f"Under {std_line} Rush Yds", "True Prob": 100 - std_prob, "Odds": under_std},
             {"Player": name, "Prop": f"Over {alt_line} Alt Rush Yds", "True Prob": alt_prob, "Odds": alt_odds},
             {"Player": name, "Prop": f"Over {rec_line} Receptions", "True Prob": rec_prob, "Odds": rec_over_odds},
+            {"Player": name, "Prop": f"Under {rec_line} Receptions", "True Prob": 100 - rec_prob, "Odds": rec_under_odds},
         ])
 
 # ✅ Top Player Board
@@ -211,7 +221,7 @@ if len(st.session_state.all_props) >= 2:
         combined_prob = round(combined_prob * 100, 2)
         avg_ev = round(combined_ev / len(selected_props), 2)
 
-        st.success(f"Parlay Hit Probability: `{combined_prob}%` | Avg EV: `{avg_ev}%`")
+        st.success(f"Parlay Hit Probability: `{combined_prob}%` | Avg EV: `{avg_ev}%")
 else:
     st.info("Add at least 2 simulated props to enable the parlay builder.")
 
