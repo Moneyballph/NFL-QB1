@@ -165,7 +165,7 @@ if position == "Running Back":
     rec_under_odds = st.number_input("Odds for Under Receptions", value=0.0)
 
     st.subheader("📈 RB & Defense Stats")
-    ypg = st.number_input("RB Yards/Game", value=0.0)
+    ypg = st.number_input("RB Rush Yards/Game", value=0.0)
     rpg = st.number_input("RB Receptions/Game", value=0.0)
     def_yds = st.number_input("Defense Rush Yards Allowed/Game", value=0.0)
     def_rec = st.number_input("Defense RB Receptions Allowed/Game", value=0.0)
@@ -189,10 +189,9 @@ if position == "Running Back":
             {"Player": name, "Prop": f"Under {rec_line} Receptions", "True Prob": 100 - rec_prob, "Odds": rec_under_odds},
         ])
 
-# ✅ Top Player Board (with visibility toggle)
+# ✅ Top Player Board
 st.markdown("---")
 show_board = st.checkbox("Show Top Player Board", value=False)
-
 if show_board:
     st.subheader("📊 Top Player Board")
     if st.session_state.all_props:
@@ -207,8 +206,6 @@ if show_board:
             )
     else:
         st.info("No props simulated yet. Run a player simulation to see results here.")
-
-
 
 # ✅ Parlay Builder
 st.markdown("---")
