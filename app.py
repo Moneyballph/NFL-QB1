@@ -190,17 +190,18 @@ if position == "Running Back":
         ])
 
 # ✅ Top Player Board
-st.markdown("---")
-st.subheader("📊 Top Player Board")
-if st.session_state.all_props:
-    sorted_props = sorted(st.session_state.all_props, key=lambda x: x["True Prob"], reverse=True)
-    for prop in sorted_props:
-        ev = ev_calc(prop["True Prob"] / 100, prop["Odds"])
-        tier = get_tier(prop["True Prob"])
-        st.markdown(f"**{prop['Player']} – {prop['Prop']}**  ")
-        st.markdown(f"True Prob: `{prop['True Prob']}%` | Odds: `{prop['Odds']}` | EV: `{ev}%` | Tier: {tier}", unsafe_allow_html=True)
-else:
-    st.info("No props simulated yet. Run a player simulation to see results here.")
+# st.markdown("---")
+# st.subheader("📊 Top Player Board")
+# if st.session_state.all_props:
+#     sorted_props = sorted(st.session_state.all_props, key=lambda x: x["True Prob"], reverse=True)
+#     for prop in sorted_props:
+#         ev = ev_calc(prop["True Prob"] / 100, prop["Odds"])
+#         tier = get_tier(prop["True Prob"])
+#         st.markdown(f"**{prop['Player']} – {prop['Prop']}**  ")
+#         st.markdown(f"True Prob: `{prop['True Prob']}%` | Odds: `{prop['Odds']}` | EV: `{ev}%` | Tier: {tier}", unsafe_allow_html=True)
+# else:
+#     st.info("No props simulated yet. Run a player simulation to see results here.")
+
 
 # ✅ Parlay Builder
 st.markdown("---")
