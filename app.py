@@ -54,22 +54,14 @@ def logistic_prob(x, line, scale=15):
     return round((1 / (1 + math.exp(-(x - line) / scale))) * 100, 2)
 
 def classify_def_tier(val):
-    if isinstance(val, int):
-        if val <= 10:
-            return "🔴 Tough"
-        elif val <= 20:
-            return "🟡 Average"
-        else:
-            return "🟢 Easy"
-    elif isinstance(val, float):
+    if isinstance(val, int) or isinstance(val, float):
         if val < 205:
             return "🔴 Tough"
         elif val <= 240:
             return "🟡 Average"
         else:
             return "🟢 Easy"
-    else:
-        return "Unknown"
+    return "Unknown"
 
 # ✅ Quarterback Module
 if position == "Quarterback":
@@ -131,6 +123,7 @@ if position == "Wide Receiver":
     ypg = st.number_input("WR Yards/Game", value=64.0)
     rpg = st.number_input("WR Receptions/Game", value=5.2)
     def_yds = st.number_input("Defense WR Yards Allowed/Game", value=240.0)
+    def_rec = st.number_input("Defense WR Receptions Allowed/Game", value=12.0)
 
     if st.button("Simulate WR Props"):
         std_prob = logistic_prob(ypg, std_line)
@@ -140,7 +133,7 @@ if position == "Wide Receiver":
 
         st.success(f"📈 Standard Yards Hit %: {std_prob}%  | Alt Line %: {alt_prob}%")
         st.success(f"🎯 Receptions Over {rec_line} Hit %: {rec_prob}%")
-        st.info(f"Opponent Defense Tier: {tier}")
+        st.info(f"Opponent Defense Tier: {tier} | Avg Receptions Allowed: {def_rec}")
 
         st.session_state.all_props.extend([
             {"Player": name, "Prop": f"Over {std_line} Rec Yds", "True Prob": std_prob, "Odds": over_std},
@@ -168,6 +161,7 @@ if position == "Running Back":
     ypg = st.number_input("RB Yards/Game", value=72.0)
     rpg = st.number_input("RB Receptions/Game", value=2.8)
     def_yds = st.number_input("Defense Rush Yards Allowed/Game", value=110.0)
+    def_rec = st.number_input("Defense RB Receptions Allowed/Game", value=4.5)
 
     if st.button("Simulate RB Props"):
         std_prob = logistic_prob(ypg, std_line)
@@ -177,7 +171,7 @@ if position == "Running Back":
 
         st.success(f"📈 Standard Rush Yards Hit %: {std_prob}%  | Alt Line %: {alt_prob}%")
         st.success(f"🎯 Receptions Over {rec_line} Hit %: {rec_prob}%")
-        st.info(f"Opponent Defense Tier: {tier}")
+        st.info(f"Opponent Defense Tier: {tier} | Avg Receptions Allowed: {def_rec}")
 
         st.session_state.all_props.extend([
             {"Player": name, "Prop": f"Over {std_line} Rush Yds", "True Prob": std_prob, "Odds": over_std},
@@ -193,9 +187,8 @@ if st.session_state.all_props:
     for prop in sorted_props:
         ev = ev_calc(prop["True Prob"] / 100, prop["Odds"])
         tier = get_tier(prop["True Prob"])
-        st.markdown(f"**{prop['Player']}** – {prop['Prop']}  ")
-        st.markdown(f"True Probability: `{prop['True Prob']}%`  |  Odds: `{prop['Odds']}`  |  EV: `{ev}%`  |  Tier: {tier}")
-        st.markdown("---")
+        st.markdown(f"**{prop['Player']} – {prop['Prop']}**  ")
+        st.markdown(f"True Prob: `{prop['True Prob']}%` | Odds: `{prop['Odds']}` | EV: `{ev}%` | Tier: {tier}", unsafe_allow_html=True)
 else:
     st.info("No props simulated yet. Run a player simulation to see results here.")
 
@@ -218,9 +211,10 @@ if len(st.session_state.all_props) >= 2:
         combined_prob = round(combined_prob * 100, 2)
         avg_ev = round(combined_ev / len(selected_props), 2)
 
-        st.success(f"Parlay Hit Probability: `{combined_prob}%`  |  Avg EV: `{avg_ev}%`")
+        st.success(f"Parlay Hit Probability: `{combined_prob}%` | Avg EV: `{avg_ev}%`")
 else:
     st.info("Add at least 2 simulated props to enable the parlay builder.")
+
 
 
 
