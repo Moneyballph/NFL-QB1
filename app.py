@@ -146,7 +146,6 @@ if position == "Wide Receiver":
             {"Player": name, "Prop": f"Under {rec_line} Receptions", "True Prob": 100 - rec_prob, "Odds": rec_under_odds},
         ])
 
-# ✅ Clean Mini Table Top Player Board (with Implied Probability)
 st.markdown("---")
 show_board = st.checkbox("📊 Show Top Player Board", value=False)
 
@@ -163,8 +162,9 @@ if show_board:
 
         display_rows = []
         for player, props in top_by_player.items():
-            top_props = sorted(props, key=lambda x: x["True Prob"], reverse=True)[:2]
-            for prop in top_props:
+            # 🔁 Show ALL props, not just top 2
+            sorted_props = sorted(props, key=lambda x: x["True Prob"], reverse=True)
+            for prop in sorted_props:
                 ev = ev_calc(prop["True Prob"] / 100, prop["Odds"])
                 tier = get_tier(prop["True Prob"])
                 implied = round(implied_prob(prop["Odds"]) * 100, 2)
@@ -182,6 +182,7 @@ if show_board:
         st.dataframe(df, use_container_width=True)
     else:
         st.info("No props simulated yet. Run a player simulation to see results here.")
+
 
 
 
