@@ -146,75 +146,43 @@ if position == "Wide Receiver":
             {"Player": name, "Prop": f"Under {rec_line} Receptions", "True Prob": 100 - rec_prob, "Odds": rec_under_odds},
         ])
 
-# ✅ Dark Themed Mini Table Top Player Board Sorted by EV (Moneyball Phil Style)
+# ✅ Clean Mini Table Top Player Board (with Implied Probability)
 st.markdown("---")
 show_board = st.checkbox("📊 Show Top Player Board", value=False)
 
-if show_board and st.session_state.all_props:
-    st.subheader("📊 Top Player Board (Moneyball Phil Style)")
+if show_board:
+    if st.session_state.all_props:
+        import pandas as pd
 
-    rows = []
-    for prop in st.session_state.all_props:
-        true_prob = prop["True Prob"]
-        odds = prop["Odds"]
-        ev = ev_calc(true_prob / 100, odds)
-        imp_prob = round(implied_prob(odds) * 100, 2)
-        tier = get_tier(true_prob)
-        rows.append((prop["Player"], prop["Prop"], f"{true_prob}%", f"{imp_prob}%", odds, f"{ev}%", tier))
+        top_by_player = {}
+        for prop in st.session_state.all_props:
+            player = prop["Player"]
+            if player not in top_by_player:
+                top_by_player[player] = []
+            top_by_player[player].append(prop)
 
-    # Sort by EV
-    rows.sort(key=lambda x: float(x[5].replace("%", "")), reverse=True)
+        display_rows = []
+        for player, props in top_by_player.items():
+            top_props = sorted(props, key=lambda x: x["True Prob"], reverse=True)[:2]
+            for prop in top_props:
+                ev = ev_calc(prop["True Prob"] / 100, prop["Odds"])
+                tier = get_tier(prop["True Prob"])
+                implied = round(implied_prob(prop["Odds"]) * 100, 2)
+                display_rows.append({
+                    "Player": player,
+                    "Prop": prop["Prop"],
+                    "True Prob": f"{prop['True Prob']}%",
+                    "Implied Prob": f"{implied}%",
+                    "Odds": prop["Odds"],
+                    "EV": f"{ev}%",
+                    "Tier": tier
+                })
 
-    # Dark Theme Table CSS
-    st.markdown("""
-    <style>
-    .player-table {
-        border-collapse: collapse;
-        width: 100%;
-        font-family: Arial, sans-serif;
-    }
-    .player-table th {
-        background-color: #111;
-        color: #00FF87;
-        padding: 10px;
-        font-size: 16px;
-        border-bottom: 2px solid #00FF87;
-        text-align: left;
-    }
-    .player-table td {
-        background-color: #1a1a1a;
-        color: white;
-        padding: 10px;
-        font-size: 15px;
-        border-bottom: 1px solid #333;
-    }
-    </style>
-    """, unsafe_allow_html=True)
+        df = pd.DataFrame(display_rows)
+        st.dataframe(df, use_container_width=True)
+    else:
+        st.info("No props simulated yet. Run a player simulation to see results here.")
 
-    # Build HTML Table
-    st.markdown("""
-    <table class="player-table">
-        <thead>
-            <tr>
-                <th>Player</th>
-                <th>Prop</th>
-                <th>True Prob</th>
-                <th>Implied Prob</th>
-                <th>Odds</th>
-                <th>EV %</th>
-                <th>Tier</th>
-            </tr>
-        </thead>
-        <tbody>
-    """, unsafe_allow_html=True)
-
-    for row in rows:
-        st.markdown(
-            f"<tr><td>{row[0]}</td><td>{row[1]}</td><td>{row[2]}</td><td>{row[3]}</td><td>{row[4]}</td><td>{row[5]}</td><td>{row[6]}</td></tr>",
-            unsafe_allow_html=True
-        )
-
-    st.markdown("</tbody></table>", unsafe_allow_html=True)
 
 
 # ✅ Parlay Builder with Custom Odds
