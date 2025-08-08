@@ -146,67 +146,87 @@ if position == "Wide Receiver":
             {"Player": name, "Prop": f"Under {rec_line} Receptions", "True Prob": 100 - rec_prob, "Odds": rec_under_odds},
         ])
 
-# ✅ Clean Mini Table Top Player Board (with Implied Probability)
+# ✅ Clean Mini Table Top Player Board Sorted by EV
 st.markdown("---")
 show_board = st.checkbox("📊 Show Top Player Board", value=False)
 
-if show_board:
-    if st.session_state.all_props:
-        import pandas as pd
+if show_board and st.session_state.all_props:
+    st.subheader("📊 Top Player Board (Mini Table View)")
 
-        top_by_player = {}
-        for prop in st.session_state.all_props:
-            player = prop["Player"]
-            if player not in top_by_player:
-                top_by_player[player] = []
-            top_by_player[player].append(prop)
+    rows = []
+    for prop in st.session_state.all_props:
+        true_prob = prop["True Prob"]
+        odds = prop["Odds"]
+        ev = ev_calc(true_prob / 100, odds)
+        imp_prob = round(implied_prob(odds) * 100, 2)
+        tier = get_tier(true_prob)
+        rows.append((prop["Player"], prop["Prop"], f"{true_prob}%", f"{imp_prob}%", odds, f"{ev}%", tier))
 
-        display_rows = []
-        for player, props in top_by_player.items():
-            top_props = sorted(props, key=lambda x: x["True Prob"], reverse=True)[:2]
-            for prop in top_props:
-                ev = ev_calc(prop["True Prob"] / 100, prop["Odds"])
-                tier = get_tier(prop["True Prob"])
-                implied = round(implied_prob(prop["Odds"]) * 100, 2)
-                display_rows.append({
-                    "Player": player,
-                    "Prop": prop["Prop"],
-                    "True Prob": f"{prop['True Prob']}%",
-                    "Implied Prob": f"{implied}%",
-                    "Odds": prop["Odds"],
-                    "EV": f"{ev}%",
-                    "Tier": tier
-                })
+    rows.sort(key=lambda x: float(x[5].replace("%", "")), reverse=True)
 
-        df = pd.DataFrame(display_rows)
-        st.dataframe(df, use_container_width=True)
-    else:
-        st.info("No props simulated yet. Run a player simulation to see results here.")
+    st.markdown("""
+    <style>
+    .player-table td {
+        padding: 6px 12px;
+        font-size: 15px;
+    }
+    .player-table th {
+        padding: 6px 12px;
+        font-size: 16px;
+        background-color: #f0f2f6;
+    }
+    </style>
+    """, unsafe_allow_html=True)
 
+    st.markdown("""
+    <table class="player-table">
+        <thead>
+            <tr>
+                <th>Player</th>
+                <th>Prop</th>
+                <th>True Prob</th>
+                <th>Implied Prob</th>
+                <th>Odds</th>
+                <th>EV %</th>
+                <th>Tier</th>
+            </tr>
+        </thead>
+        <tbody>
+    """, unsafe_allow_html=True)
 
+    for row in rows:
+        st.markdown(
+            f"<tr><td>{row[0]}</td><td>{row[1]}</td><td>{row[2]}</td><td>{row[3]}</td><td>{row[4]}</td><td>{row[5]}</td><td>{row[6]}</td></tr>",
+            unsafe_allow_html=True
+        )
 
-# ✅ Parlay Builder
+    st.markdown("</tbody></table>", unsafe_allow_html=True)
+
+# ✅ Parlay Builder with Custom Odds
 st.markdown("---")
 st.subheader("💡 Parlay Builder")
+
 if len(st.session_state.all_props) >= 2:
     parlay_choices = [f"{p['Player']} – {p['Prop']}" for p in st.session_state.all_props]
     selected = st.multiselect("Select Props for Parlay (2+)", parlay_choices)
-    parlay_odds = st.number_input("Enter Combined Parlay Odds (American)", value=0.0)
 
     if selected and len(selected) >= 2:
         selected_props = [p for p in st.session_state.all_props if f"{p['Player']} – {p['Prop']}" in selected]
+        custom_odds = st.number_input("Enter Parlay Odds (American format)", value=0)
+
         combined_prob = 1
+        combined_ev = 0
+
         for p in selected_props:
             combined_prob *= p["True Prob"] / 100
+            combined_ev += ev_calc(p["True Prob"] / 100, p["Odds"])
 
         combined_prob = round(combined_prob * 100, 2)
-        implied = implied_prob(parlay_odds)
-        ev = round((combined_prob / 100 - implied) * 100, 2)
+        avg_ev = round(combined_ev / len(selected_props), 2)
 
-        st.success(f"Parlay Hit Probability: `{combined_prob}%` | Implied Prob: `{round(implied*100, 2)}%` | EV: `{ev}%`")
+        st.success(f"Parlay Hit Probability: `{combined_prob}%` | Avg EV: `{avg_ev}%` | Custom Odds: `{custom_odds}`")
 else:
     st.info("Add at least 2 simulated props to enable the parlay builder.")
-
 
 
 
