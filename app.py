@@ -146,12 +146,14 @@ if position == "Wide Receiver":
             {"Player": name, "Prop": f"Under {rec_line} Receptions", "True Prob": 100 - rec_prob, "Odds": rec_under_odds},
         ])
 
-# ✅ Top Player Board
+# ✅ Clean Mini Table Top Player Board
 st.markdown("---")
-show_board = st.checkbox("Show Top Player Board", value=False)
+show_board = st.checkbox("📊 Show Top Player Board", value=False)
+
 if show_board:
-    st.subheader("📊 Top Player Board")
     if st.session_state.all_props:
+        import pandas as pd
+
         top_by_player = {}
         for prop in st.session_state.all_props:
             player = prop["Player"]
@@ -159,18 +161,26 @@ if show_board:
                 top_by_player[player] = []
             top_by_player[player].append(prop)
 
+        display_rows = []
         for player, props in top_by_player.items():
             top_props = sorted(props, key=lambda x: x["True Prob"], reverse=True)[:2]
             for prop in top_props:
                 ev = ev_calc(prop["True Prob"] / 100, prop["Odds"])
                 tier = get_tier(prop["True Prob"])
-                st.markdown(f"**{prop['Player']} – {prop['Prop']}**  ")
-                st.markdown(
-                    f"True Prob: `{prop['True Prob']}%` | Odds: `{prop['Odds']}` | EV: `{ev}%` | Tier: {tier}",
-                    unsafe_allow_html=True
-                )
+                display_rows.append({
+                    "Player": player,
+                    "Prop": prop["Prop"],
+                    "True Prob": f"{prop['True Prob']}%",
+                    "Odds": prop["Odds"],
+                    "EV": f"{ev}%",
+                    "Tier": tier
+                })
+
+        df = pd.DataFrame(display_rows)
+        st.dataframe(df, use_container_width=True)
     else:
         st.info("No props simulated yet. Run a player simulation to see results here.")
+
 
 # ✅ Parlay Builder
 st.markdown("---")
