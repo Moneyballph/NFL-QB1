@@ -172,30 +172,27 @@ if show_board:
     else:
         st.info("No props simulated yet. Run a player simulation to see results here.")
 
-# ✅ Cleaned-Up Top Player Board with Expanders
+# ✅ Parlay Builder
 st.markdown("---")
-show_board = st.checkbox("📊 Show Top Player Board", value=False)
+st.subheader("💡 Parlay Builder")
+if len(st.session_state.all_props) >= 2:
+    parlay_choices = [f"{p['Player']} – {p['Prop']}" for p in st.session_state.all_props]
+    selected = st.multiselect("Select Props for Parlay (2+)", parlay_choices)
+    parlay_odds = st.number_input("Enter Combined Parlay Odds (American)", value=0.0)
 
-if show_board:
-    if st.session_state.all_props:
-        # Group props by player
-        grouped = {}
-        for prop in st.session_state.all_props:
-            grouped.setdefault(prop['Player'], []).append(prop)
+    if selected and len(selected) >= 2:
+        selected_props = [p for p in st.session_state.all_props if f"{p['Player']} – {p['Prop']}" in selected]
+        combined_prob = 1
+        for p in selected_props:
+            combined_prob *= p["True Prob"] / 100
 
-        st.subheader("📊 Top Player Board (Grouped)")
+        combined_prob = round(combined_prob * 100, 2)
+        implied = implied_prob(parlay_odds)
+        ev = round((combined_prob / 100 - implied) * 100, 2)
 
-        for player, props in grouped.items():
-            with st.expander(f"{player} – {len(props)} Props Simulated"):
-                for prop in props:
-                    ev = ev_calc(prop["True Prob"] / 100, prop["Odds"])
-                    tier = get_tier(prop["True Prob"])
-                    st.markdown(
-                        f"- **{prop['Prop']}** → True Prob: `{prop['True Prob']}%` | Odds: `{prop['Odds']}` | EV: `{ev}%` | Tier: {tier}",
-                        unsafe_allow_html=True
-                    )
-    else:
-        st.info("No props simulated yet. Run a player simulation to see results here.")
+        st.success(f"Parlay Hit Probability: `{combined_prob}%` | Implied Prob: `{round(implied*100, 2)}%` | EV: `{ev}%`")
+else:
+    st.info("Add at least 2 simulated props to enable the parlay builder.")
 
 
 
