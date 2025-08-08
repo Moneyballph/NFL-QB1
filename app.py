@@ -146,12 +146,12 @@ if position == "Wide Receiver":
             {"Player": name, "Prop": f"Under {rec_line} Receptions", "True Prob": 100 - rec_prob, "Odds": rec_under_odds},
         ])
 
-# ✅ Clean Mini Table Top Player Board Sorted by EV
+# ✅ Dark Themed Mini Table Top Player Board Sorted by EV (Moneyball Phil Style)
 st.markdown("---")
 show_board = st.checkbox("📊 Show Top Player Board", value=False)
 
 if show_board and st.session_state.all_props:
-    st.subheader("📊 Top Player Board (Mini Table View)")
+    st.subheader("📊 Top Player Board (Moneyball Phil Style)")
 
     rows = []
     for prop in st.session_state.all_props:
@@ -162,22 +162,36 @@ if show_board and st.session_state.all_props:
         tier = get_tier(true_prob)
         rows.append((prop["Player"], prop["Prop"], f"{true_prob}%", f"{imp_prob}%", odds, f"{ev}%", tier))
 
+    # Sort by EV
     rows.sort(key=lambda x: float(x[5].replace("%", "")), reverse=True)
 
+    # Dark Theme Table CSS
     st.markdown("""
     <style>
-    .player-table td {
-        padding: 6px 12px;
-        font-size: 15px;
+    .player-table {
+        border-collapse: collapse;
+        width: 100%;
+        font-family: Arial, sans-serif;
     }
     .player-table th {
-        padding: 6px 12px;
+        background-color: #111;
+        color: #00FF87;
+        padding: 10px;
         font-size: 16px;
-        background-color: #f0f2f6;
+        border-bottom: 2px solid #00FF87;
+        text-align: left;
+    }
+    .player-table td {
+        background-color: #1a1a1a;
+        color: white;
+        padding: 10px;
+        font-size: 15px;
+        border-bottom: 1px solid #333;
     }
     </style>
     """, unsafe_allow_html=True)
 
+    # Build HTML Table
     st.markdown("""
     <table class="player-table">
         <thead>
@@ -201,6 +215,7 @@ if show_board and st.session_state.all_props:
         )
 
     st.markdown("</tbody></table>", unsafe_allow_html=True)
+
 
 # ✅ Parlay Builder with Custom Odds
 st.markdown("---")
