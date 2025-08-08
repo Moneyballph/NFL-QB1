@@ -146,7 +146,7 @@ if position == "Wide Receiver":
             {"Player": name, "Prop": f"Under {rec_line} Receptions", "True Prob": 100 - rec_prob, "Odds": rec_under_odds},
         ])
 
-# ✅ Clean Mini Table Top Player Board
+# ✅ Clean Mini Table Top Player Board (with Implied Probability)
 st.markdown("---")
 show_board = st.checkbox("📊 Show Top Player Board", value=False)
 
@@ -167,10 +167,12 @@ if show_board:
             for prop in top_props:
                 ev = ev_calc(prop["True Prob"] / 100, prop["Odds"])
                 tier = get_tier(prop["True Prob"])
+                implied = round(implied_prob(prop["Odds"]) * 100, 2)
                 display_rows.append({
                     "Player": player,
                     "Prop": prop["Prop"],
                     "True Prob": f"{prop['True Prob']}%",
+                    "Implied Prob": f"{implied}%",
                     "Odds": prop["Odds"],
                     "EV": f"{ev}%",
                     "Tier": tier
@@ -180,6 +182,7 @@ if show_board:
         st.dataframe(df, use_container_width=True)
     else:
         st.info("No props simulated yet. Run a player simulation to see results here.")
+
 
 
 # ✅ Parlay Builder
