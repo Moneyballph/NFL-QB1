@@ -28,7 +28,7 @@ def set_background(image_file_path):
 st.set_page_config(page_title="🏈 Moneyball Phil: NFL Prop Simulator", layout="centered")
 set_background("ChatGPT Image Jul 14, 2025, 09_58_55 AM.png")
 
-st.title("🏈 Moneyball Phil: NFL Prop Simulator (v2.2)")
+st.title("🏈 Moneyball Phil: NFL Prop Simulator (v2.3)")
 
 # =========================
 # Session State
@@ -194,6 +194,10 @@ if position == "Quarterback":
     if st.button("Simulate QB Props"):
         tier = classify_def_tier(def_yds)
         adj_ypg, adj_tds = apply_defense_adjustments(ypg, tds, tier)
+
+        # 🔑 clear before adding new results
+        st.session_state.temp_props = []
+
         std_prob = logistic_prob(adj_ypg, std_line)
         alt_prob = logistic_prob(adj_ypg, alt_line)
         td_prob = logistic_prob(adj_tds, td_line, scale=0.5)
@@ -204,7 +208,6 @@ if position == "Quarterback":
         st.success(f"📈 Over {alt_line} Alt Pass Yds → {alt_prob}%")
         st.success(f"📉 Under {td_line} Pass TDs → {under_td_prob}%")
 
-        st.session_state.temp_props = []
         add_temp_play(name, f"Over {std_line} Pass Yds", std_prob, over_std, "QB")
         add_temp_play(name, f"Over {alt_line} Alt Pass Yds", alt_prob, alt_odds, "QB")
         add_temp_play(name, f"Under {td_line} Pass TDs", under_td_prob, td_under_odds, "QB")
@@ -233,6 +236,10 @@ if position == "Wide Receiver":
     if st.button("Simulate WR Props"):
         tier = classify_def_tier(def_yds)
         adj_ypg, _ = apply_defense_adjustments(ypg, 0.0, tier)
+
+        # 🔑 clear before adding new results
+        st.session_state.temp_props = []
+
         std_prob = logistic_prob(adj_ypg, std_line)
         alt_prob = logistic_prob(adj_ypg, alt_line)
         rec_prob = logistic_prob(rpg, rec_line, scale=1.5)
@@ -243,7 +250,6 @@ if position == "Wide Receiver":
         st.success(f"🎯 Over {rec_line} Receptions → {rec_prob}%")
         st.success(f"📉 Under {rec_line} Receptions → {round(100-rec_prob,2)}%")
 
-        st.session_state.temp_props = []
         add_temp_play(name, f"Over {std_line} Rec Yds", std_prob, over_std, "WR")
         add_temp_play(name, f"Under {std_line} Rec Yds", round(100-std_prob,2), under_std, "WR")
         add_temp_play(name, f"Over {alt_line} Alt Rec Yds", alt_prob, alt_odds, "WR")
@@ -274,6 +280,10 @@ if position == "Running Back":
     if st.button("Simulate RB Props"):
         tier = classify_def_tier(def_yds)
         adj_ypg, _ = apply_defense_adjustments(ypg, 0.0, tier)
+
+        # 🔑 clear before adding new results
+        st.session_state.temp_props = []
+
         std_prob = logistic_prob(adj_ypg, std_line)
         alt_prob = logistic_prob(adj_ypg, alt_line)
         rec_prob = logistic_prob(rpg, rec_line, scale=1.5)
@@ -284,7 +294,6 @@ if position == "Running Back":
         st.success(f"🎯 Over {rec_line} Receptions → {rec_prob}%")
         st.success(f"📉 Under {rec_line} Receptions → {round(100-rec_prob,2)}%")
 
-        st.session_state.temp_props = []
         add_temp_play(name, f"Over {std_line} Rush Yds", std_prob, over_std, "RB")
         add_temp_play(name, f"Under {std_line} Rush Yds", round(100-std_prob,2), under_std, "RB")
         add_temp_play(name, f"Over {alt_line} Alt Rush Yds", alt_prob, alt_odds, "RB")
@@ -297,8 +306,6 @@ if position == "Running Back":
 render_temp_save_controls()
 render_board_and_delete()
 render_parlay_builder()
-
-
 
 
 
