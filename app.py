@@ -28,7 +28,7 @@ def set_background(image_file_path):
 st.set_page_config(page_title="🏈 Moneyball Phil: NFL Prop Simulator", layout="centered")
 set_background("ChatGPT Image Jul 14, 2025, 09_58_55 AM.png")
 
-st.title("🏈 Moneyball Phil: NFL Prop Simulator (v2.3)")
+st.title("🏈 Moneyball Phil: NFL Prop Simulator (v2.5)")
 
 # =========================
 # Session State
@@ -190,20 +190,15 @@ if position == "Quarterback":
     ypg = st.number_input("QB Yards/Game", value=0.0)
     tds = st.number_input("QB TD/Game", value=0.0)
     def_yds = st.number_input("Defense Pass Yards Allowed/Game", value=0.0)
-    def_tds = st.number_input("Defense Pass TDs Allowed/Game", value=0.0)  # ✅ restored
+    def_tds = st.number_input("Defense Pass TDs Allowed/Game", value=0.0)
 
     if st.button("Simulate QB Props"):
         tier = classify_def_tier(def_yds)
-
-        # blend QB vs Defense inputs before adjustment
         avg_ypg = (ypg + def_yds) / 2
         avg_tds = (tds + def_tds) / 2
-
-        # auto-apply defense adjustments
         adj_ypg, adj_tds = apply_defense_adjustments(avg_ypg, avg_tds, tier)
 
-        # clear before adding new results
-        st.session_state.temp_props = []
+        st.session_state.temp_props = []  # auto clear
 
         std_prob = logistic_prob(adj_ypg, std_line)
         alt_prob = logistic_prob(adj_ypg, alt_line)
@@ -218,7 +213,6 @@ if position == "Quarterback":
         add_temp_play(name, f"Over {std_line} Pass Yds", std_prob, over_std, "QB")
         add_temp_play(name, f"Over {alt_line} Alt Pass Yds", alt_prob, alt_odds, "QB")
         add_temp_play(name, f"Under {td_line} Pass TDs", under_td_prob, td_under_odds, "QB")
-
 
 # =========================
 # Wide Receiver Module
@@ -240,17 +234,19 @@ if position == "Wide Receiver":
     ypg = st.number_input("WR Yards/Game", value=0.0)
     rpg = st.number_input("WR Receptions/Game", value=0.0)
     def_yds = st.number_input("Defense WR Yards Allowed/Game", value=0.0)
+    def_rec = st.number_input("Defense WR Receptions Allowed/Game", value=0.0)
 
     if st.button("Simulate WR Props"):
         tier = classify_def_tier(def_yds)
-        adj_ypg, _ = apply_defense_adjustments(ypg, 0.0, tier)
+        avg_ypg = (ypg + def_yds) / 2
+        avg_rpg = (rpg + def_rec) / 2
+        adj_ypg, _ = apply_defense_adjustments(avg_ypg, 0.0, tier)
 
-        # 🔑 clear before adding new results
-        st.session_state.temp_props = []
+        st.session_state.temp_props = []  # auto clear
 
         std_prob = logistic_prob(adj_ypg, std_line)
         alt_prob = logistic_prob(adj_ypg, alt_line)
-        rec_prob = logistic_prob(rpg, rec_line, scale=1.5)
+        rec_prob = logistic_prob(avg_rpg, rec_line, scale=1.5)
 
         st.info(f"Opponent Defense Tier: **{tier}**")
         st.success(f"📈 Over {std_line} Rec Yds → {std_prob}%")
@@ -284,17 +280,19 @@ if position == "Running Back":
     ypg = st.number_input("RB Yards/Game", value=0.0)
     rpg = st.number_input("RB Receptions/Game", value=0.0)
     def_yds = st.number_input("Defense Rush Yards Allowed/Game", value=0.0)
+    def_rec = st.number_input("Defense RB Receptions Allowed/Game", value=0.0)
 
     if st.button("Simulate RB Props"):
         tier = classify_def_tier(def_yds)
-        adj_ypg, _ = apply_defense_adjustments(ypg, 0.0, tier)
+        avg_ypg = (ypg + def_yds) / 2
+        avg_rpg = (rpg + def_rec) / 2
+        adj_ypg, _ = apply_defense_adjustments(avg_ypg, 0.0, tier)
 
-        # 🔑 clear before adding new results
-        st.session_state.temp_props = []
+        st.session_state.temp_props = []  # auto clear
 
         std_prob = logistic_prob(adj_ypg, std_line)
         alt_prob = logistic_prob(adj_ypg, alt_line)
-        rec_prob = logistic_prob(rpg, rec_line, scale=1.5)
+        rec_prob = logistic_prob(avg_rpg, rec_line, scale=1.5)
 
         st.info(f"Opponent Defense Tier: **{tier}**")
         st.success(f"📈 Over {std_line} Rush Yds → {std_prob}%")
@@ -314,7 +312,5 @@ if position == "Running Back":
 render_temp_save_controls()
 render_board_and_delete()
 render_parlay_builder()
-
-
 
    
